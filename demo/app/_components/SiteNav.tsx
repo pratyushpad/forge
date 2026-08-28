@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import ForgeMark from "./ForgeMark";
 
 const LINKS = [
@@ -26,6 +26,8 @@ const LINKS = [
 export default function SiteNav() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const toggleRef = useRef<HTMLButtonElement | null>(null);
+  const sheetRef = useRef<HTMLDivElement | null>(null);
 
   // Close on route change — the sheet's own links navigate.
   useEffect(() => {
@@ -44,6 +46,15 @@ export default function SiteNav() {
     return () => {
       document.body.style.overflow = previous;
       window.removeEventListener("keydown", onKey);
+      // Closing hides the sheet, which would silently drop keyboard focus to
+      // <body>; hand it back to the toggle instead (WCAG 2.4.3).
+      const active = document.activeElement;
+      if (
+        active === document.body ||
+        (active instanceof Node && sheetRef.current?.contains(active))
+      ) {
+        toggleRef.current?.focus();
+      }
     };
   }, [open]);
 
@@ -75,6 +86,7 @@ export default function SiteNav() {
         <button
           type="button"
           className="nav-toggle"
+          ref={toggleRef}
           aria-expanded={open}
           aria-controls="nav-sheet"
           aria-label="Open menu"
@@ -91,7 +103,7 @@ export default function SiteNav() {
         </button>
       </div>
 
-      <div className={`nav-sheet${open ? " open" : ""}`} id="nav-sheet">
+      <div className={`nav-sheet${open ? " open" : ""}`} id="nav-sheet" ref={sheetRef}>
         <button
           type="button"
           className="nav-sheet-close"
