@@ -18,12 +18,15 @@ export default function RewardStack({ items, max }: { items: RewardItem[]; max: 
   const [hovered, setHovered] = useState<string | null>(null);
 
   useEffect(() => {
-    if (prefersReducedMotion()) {
+    if (prefersReducedMotion() || typeof IntersectionObserver === "undefined") {
       setInView(true);
       return;
     }
     const el = ref.current;
-    if (!el) return;
+    if (!el) {
+      setInView(true);
+      return;
+    }
     const io = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {

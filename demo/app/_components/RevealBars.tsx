@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type CSSProperties } from "react";
-import { staggerStepMs } from "../../lib/motion";
+import { prefersReducedMotion, staggerStepMs } from "../../lib/motion";
 import CountUp from "./motion/CountUp";
 
 export type BarRow = {
@@ -29,7 +29,12 @@ export default function RevealBars({ rows, max = 100 }: { rows: BarRow[]; max?: 
 
   useEffect(() => {
     const el = ref.current;
-    if (!el) return;
+    // An unfilled bar reads as a zero, so every path that isn't "observe and
+    // fill" has to land on the filled state instead of the empty one.
+    if (!el || prefersReducedMotion() || typeof IntersectionObserver === "undefined") {
+      setInView(true);
+      return;
+    }
     const io = new IntersectionObserver(([entry]) => entry.isIntersecting && setInView(true), {
       threshold: 0.25,
     });

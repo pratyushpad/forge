@@ -60,13 +60,20 @@ export default function CountUp({
   // `value` changes on an already-mounted, already-visible instance — covers
   // both a fresh mount and a soft-navigated prop swap.
   useEffect(() => {
-    if (prefersReducedMotion()) {
+    // A counter stuck at its start value is a wrong number on screen, which
+    // is worse than no animation — every non-observing path shows the real
+    // value immediately.
+    if (prefersReducedMotion() || typeof IntersectionObserver === "undefined") {
       setDisplay(value);
       setInView(true);
       return;
     }
     const el = ref.current;
-    if (!el) return;
+    if (!el) {
+      setDisplay(value);
+      setInView(true);
+      return;
+    }
     const io = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {

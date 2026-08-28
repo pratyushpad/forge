@@ -31,12 +31,18 @@ export default function Reveal({
   const [inView, setInView] = useState(false);
 
   useEffect(() => {
-    if (prefersReducedMotion()) {
+    // Reduced motion, or no observer to rely on: show the final state now.
+    // Nothing that starts at opacity 0 may depend on an API that might not
+    // be there to turn it back on.
+    if (prefersReducedMotion() || typeof IntersectionObserver === "undefined") {
       setInView(true);
       return;
     }
     const el = ref.current;
-    if (!el) return;
+    if (!el) {
+      setInView(true);
+      return;
+    }
     const io = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
@@ -44,7 +50,11 @@ export default function Reveal({
           io.disconnect(); // once
         }
       },
-      { rootMargin, threshold: 0.1 },
+      // threshold 0, not a ratio: these wrappers hold whole sections, and a
+      // block taller than the viewport can never reach a ratio threshold —
+      // it would stay invisible forever. rootMargin already delays the
+      // reveal until the block is properly on screen.
+      { rootMargin, threshold: 0 },
     );
     io.observe(el);
     return () => io.disconnect();

@@ -32,13 +32,17 @@ export default function PathDraw({
       if (!path) return;
       const length = path.getTotalLength();
 
+      // A zero or non-finite length means the SVG hasn't laid out yet.
+      // Leave the path alone rather than hiding something we can't reveal.
+      if (!Number.isFinite(length) || length <= 0) return;
+
       if (prefersReducedMotion()) {
         gsap.set(path, { strokeDasharray: length, strokeDashoffset: 0 });
         return;
       }
 
       gsap.set(path, { strokeDasharray: length, strokeDashoffset: length });
-      gsap.to(path, {
+      const tween = gsap.to(path, {
         strokeDashoffset: 0,
         duration,
         ease: gsapEaseInOut,
@@ -48,6 +52,14 @@ export default function PathDraw({
           once: true,
         },
       });
+
+      // If this unmounts before the trigger ever fires, the path must be
+      // handed back drawn, not hidden behind a dash offset.
+      return () => {
+        tween.scrollTrigger?.kill();
+        tween.kill();
+        gsap.set(path, { clearProps: "strokeDasharray,strokeDashoffset" });
+      };
     },
     { scope: pathRef, dependencies: [d, duration] },
   );
