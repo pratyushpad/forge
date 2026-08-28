@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import ForgeSecLabel from "../_components/ForgeSecLabel";
-import TextIgnite from "../_components/motion/TextIgnite";
+import HeadlineReveal from "../_components/motion/HeadlineReveal";
 import Reveal from "../_components/motion/Reveal";
 import RewardStack from "../_components/RewardStack";
 
@@ -11,29 +11,31 @@ export const metadata: Metadata = {
 };
 
 // Every component is the value in train/rewards.py; the total is the 3.25 in §3.
+// `tone` names a step on the sequential sage ramp in tokens.css (leaf →
+// bough → frond → sage): the deeper the tone, the more the term matters.
 const REWARD = [
   {
     name: "Correct answer",
     value: 2.0,
-    tone: "ember",
+    tone: "leaf",
     detail: "Parsed <answer> matches gold. The signal that actually teaches math.",
   },
   {
     name: "Tag presence",
     value: 0.5,
-    tone: "glow",
+    tone: "bough",
     detail: "Graded: +0.125 per required tag present exactly once. Added to fix the cold start.",
   },
   {
     name: "Exact format",
     value: 0.5,
-    tone: "deep",
+    tone: "frond",
     detail: "The whole completion matches the strict <reasoning>/<answer> shape.",
   },
   {
     name: "Numeric answer",
     value: 0.25,
-    tone: "ash",
+    tone: "sage",
     detail: "The <answer> block parses as a number. Soft shaping before correctness is reachable.",
   },
 ];
@@ -44,9 +46,11 @@ export default function Method() {
     <div className="wrap">
       <section className="pg-head">
         <ForgeSecLabel num="00" label="Method · how it works" />
-        <TextIgnite as="h2">
-          Reinforcement learning against a math checker
-        </TextIgnite>
+        <HeadlineReveal as="h2">
+          <>
+            Reinforcement learning against a <i>math checker</i>
+          </>
+        </HeadlineReveal>
         <p className="pg-lede">
           No supervised fine-tuning, no human preference labels, no learned reward model. The model
           proposes answers, a Python function grades them, and the ones that score above their

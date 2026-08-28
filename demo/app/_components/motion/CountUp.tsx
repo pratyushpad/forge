@@ -42,9 +42,10 @@ export default function CountUp({
   /** Tween duration in seconds. */
   duration?: number;
   className?: string;
-  /** Fill the digits with the `--heat` gradient. Applied to the text-bearing
-   *  spans (not the wrapper) so background-clip:text renders reliably even
-   *  though the animating value sits in an absolutely-positioned span. */
+  /** Mark this as the tuned figure — the `.hot` class colours it with the
+   *  readable sage that means "growth" everywhere else on the site. Applied
+   *  to the text-bearing spans, not the wrapper, so both the sizer and the
+   *  animating value stay in sync. */
   hot?: boolean;
 }) {
   const ref = useRef<HTMLSpanElement | null>(null);

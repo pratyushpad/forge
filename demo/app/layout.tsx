@@ -1,17 +1,31 @@
-import type { Metadata } from "next";
-import { Space_Grotesk, Inter_Tight, JetBrains_Mono } from "next/font/google";
+import type { Metadata, Viewport } from "next";
+import { Playfair_Display, Source_Sans_3, JetBrains_Mono } from "next/font/google";
 import SiteNav from "./_components/SiteNav";
 import "./tokens.css";
 import "./globals.css";
 
-const display = Space_Grotesk({
-  weight: ["500", "700"],
+// Playfair Display is the voice: a high-contrast transitional serif, used
+// roman for headlines and italic for the one emphasised word inside them.
+// Source Sans 3 does all the reading and all the interface chrome.
+// JetBrains Mono is reserved for machine output only — reasoning traces,
+// measured figures, model ids, code.
+const display = Playfair_Display({
   subsets: ["latin"],
+  style: ["normal", "italic"],
   variable: "--font-display",
   display: "swap",
 });
-const inter = Inter_Tight({ subsets: ["latin"], variable: "--font-sans", display: "swap" });
+const sans = Source_Sans_3({
+  subsets: ["latin"],
+  style: ["normal", "italic"],
+  variable: "--font-sans",
+  display: "swap",
+});
 const jetbrainsMono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-mono", display: "swap" });
+
+export const viewport: Viewport = {
+  themeColor: "#F9F8F4",
+};
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://forge-grpo.vercel.app"),
@@ -39,7 +53,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           data-* attributes onto <body> before React hydrates. This suppresses
           the warning for body's own attributes only — real mismatches in the
           tree below still surface. */}
-      <body suppressHydrationWarning className={`${display.variable} ${inter.variable} ${jetbrainsMono.variable}`}>
+      <body suppressHydrationWarning className={`${display.variable} ${sans.variable} ${jetbrainsMono.variable}`}>
         <SiteNav />
         {children}
       </body>

@@ -1,29 +1,31 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, type ReactNode } from "react";
 import { gsap, SplitText, useGSAP } from "../../../lib/gsap";
-import { gsapEaseOut, prefersReducedMotion } from "../../../lib/motion";
-
-const WORD_STAGGER = 0.045;
+import { gsapEaseOut, prefersReducedMotion, wordStaggerStep } from "../../../lib/motion";
 
 /**
- * Headline reveal: splits text into words with SplitText and rises them in
- * on mount (power4.out, quiet word-level stagger). Word-level, not
- * char-level — a calmer entrance than a per-letter cascade, appropriate for
- * a headline that reads once per visit, not hundreds of times a day.
+ * Headline reveal: splits the heading into words with SplitText and unfurls
+ * them on mount — a slow rise, expo-eased, one word at a time. Word-level,
+ * not character-level: a serif headline that reads once per visit should
+ * open like a page turning, not cascade like a loading list.
  *
- * Gated behind `document.fonts.ready`: Space Grotesk loads with
+ * Children are ReactNode, not a string, so a headline can carry its one
+ * italic word (`<i>reason</i>`). SplitText preserves nested inline elements
+ * when it wraps words, so the italic survives the split.
+ *
+ * Gated behind `document.fonts.ready`: Playfair Display loads with
  * `display: swap`, so splitting before the real font is ready would measure
- * the fallback typeface's metrics and visibly reflow once it swaps in.
+ * the fallback's metrics and visibly reflow once it swaps in.
  *
  * Reduced motion: renders the same static markup, SplitText never runs.
  */
-export default function TextIgnite({
+export default function HeadlineReveal({
   children,
   as: Tag = "h1",
   className,
 }: {
-  children: string;
+  children: ReactNode;
   as?: "h1" | "h2" | "h3" | "span" | "div";
   className?: string;
 }) {
@@ -42,13 +44,13 @@ export default function TextIgnite({
         if (cancelled || !el) return;
 
         split = new SplitText(el, { type: "words", wordsClass: "reveal-word" });
-        gsap.set(split.words, { opacity: 0, y: "0.4em" });
+        gsap.set(split.words, { opacity: 0, y: "0.35em" });
         gsap.to(split.words, {
           opacity: 1,
           y: 0,
-          duration: 0.55,
+          duration: 0.75,
           ease: gsapEaseOut,
-          stagger: WORD_STAGGER,
+          stagger: wordStaggerStep,
         });
       });
 

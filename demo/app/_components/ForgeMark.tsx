@@ -1,23 +1,19 @@
 /**
- * Scalable Forge brand mark — the chamfered-F glyph geometry from
- * `app/icon.svg`, lifted out of its favicon tile so it can stand alone from
- * 16px (nav) up to hero scale. No client-only hooks, so this renders fine
- * from a Server Component too.
+ * Forge mark — a sprig that reads as an "F": one gently curving stem with
+ * two leaves where the F's arms would be. Same geometry as `app/icon.svg`,
+ * lifted out of its favicon tile so it can stand alone from 16px (nav) up to
+ * hero scale. The stem is stroked and the leaves are filled, so the mark
+ * holds together at favicon size instead of dissolving into hairlines.
  *
- * Fills with `currentColor` — wrap it in something that sets `color` and the
- * mark follows. `accent={true}` fills with the brand accent instead, for the
- * one or two spots (the nav wordmark) that want it to read as the mark
- * rather than blend into surrounding text.
+ * Inherits `currentColor` — wrap it in something that sets `color` and the
+ * mark follows. No client-only hooks, so it renders from a Server Component.
  */
 export default function ForgeMark({
   size = 24,
-  accent = false,
   className,
 }: {
   /** Rendered width/height in px. */
   size?: number;
-  /** Fill with var(--accent) instead of currentColor. */
-  accent?: boolean;
   className?: string;
 }) {
   return (
@@ -31,11 +27,21 @@ export default function ForgeMark({
       aria-label="Forge"
       className={className}
     >
-      <g fill={accent ? "var(--accent)" : "currentColor"}>
-        <path d="M11 9 H17 V27 L14 31 L11 27 Z" />
-        <path d="M11 9 H30 L24 16 H11 Z" />
-        <path d="M11 19 H26 L20 25 H11 Z" />
-      </g>
+      <path
+        d="M13.5 35 C13 27 13.2 17 15 6"
+        stroke="currentColor"
+        strokeWidth="2.2"
+        strokeLinecap="round"
+      />
+      <path
+        d="M15.2 13.2 C20.5 5.5 28.5 4.2 34 6.4 C31.6 13.6 23.2 16.8 15.2 13.2 Z"
+        fill="currentColor"
+      />
+      <path
+        d="M14.1 23.6 C18.2 17.9 24.4 16.9 28.6 18.6 C26.8 24.1 20.3 26.4 14.1 23.6 Z"
+        fill="currentColor"
+        opacity="0.65"
+      />
     </svg>
   );
 }

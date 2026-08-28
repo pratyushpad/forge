@@ -1,24 +1,14 @@
 <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Forge">
   <!--
-    Forge favicon. A bold angular "F" monogram (original work, in the style of
-    geometric interlaced lettermarks) drawn white on a coal->iron tile to echo
-    the reference mark, with 45-degree blade-cut arm ends and a pointed stem
-    foot. Solid fills (not thin line-art) so it stays legible at 16px in a tab.
-    The full interlaced/ribbon logo belongs at large sizes (site header / OG).
+    Forge favicon. A sprig that reads as an "F": one curving stem with two
+    leaves where the F's arms would be, drawn in deep forest on warm
+    alabaster stock. Original work. The stem is stroked and the leaves are
+    solid fills (not thin line-art) so the mark stays legible at 16px in a
+    browser tab. Geometry is shared with app/_components/ForgeMark.tsx.
   -->
-  <defs>
-    <linearGradient id="tile" x1="20" y1="0" x2="20" y2="40" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#1c1815"/>
-      <stop offset="1" stop-color="#0c0a09"/>
-    </linearGradient>
-  </defs>
+  <rect x="1" y="1" width="38" height="38" rx="12" fill="#F9F8F4" stroke="#E6E2DA"/>
 
-  <rect x="1" y="1" width="38" height="38" rx="9" fill="url(#tile)" stroke="#2c251f"/>
-
-  <!-- Bold angular F: chamfered stem with a pointed foot + two blade-cut arms -->
-  <g fill="#f5efe9">
-    <path d="M11 9 H17 V27 L14 31 L11 27 Z"/>
-    <path d="M11 9 H30 L24 16 H11 Z"/>
-    <path d="M11 19 H26 L20 25 H11 Z"/>
-  </g>
+  <path d="M13.5 33 C13 26 13.2 17 15 7" stroke="#2D3A31" stroke-width="2.2" stroke-linecap="round"/>
+  <path d="M15.2 13.6 C20.4 6.4 27.9 5.2 33 7.3 C30.7 14 22.8 17 15.2 13.6 Z" fill="#2D3A31"/>
+  <path d="M14.1 23.4 C18 18.1 23.8 17.2 27.7 18.8 C26 23.9 19.9 26 14.1 23.4 Z" fill="#5F7055"/>
 </svg>

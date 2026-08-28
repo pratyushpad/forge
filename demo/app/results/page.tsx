@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import RevealBars from "../_components/RevealBars";
 import ForgeSecLabel from "../_components/ForgeSecLabel";
-import TextIgnite from "../_components/motion/TextIgnite";
+import HeadlineReveal from "../_components/motion/HeadlineReveal";
 import Reveal from "../_components/motion/Reveal";
 
 export const metadata: Metadata = {
@@ -18,9 +18,11 @@ export default function Results() {
     <div className="wrap">
       <section className="pg-head">
         <ForgeSecLabel num="00" label="Results · the evidence" />
-        <TextIgnite as="h2">
-          Every number, and where it came from
-        </TextIgnite>
+        <HeadlineReveal as="h2">
+          <>
+            Every number, and <i>where it came from</i>
+          </>
+        </HeadlineReveal>
         <p className="pg-lede">
           All evaluation is greedy (temperature=0) at seed 3407, on data the model never trained on.
           Each figure below is read off a JSON file committed under <code>eval/results/</code>. The
@@ -32,7 +34,8 @@ export default function Results() {
         <ForgeSecLabel num="01" label="The headline" />
         <Reveal>
           <h3 className="prose-h">GSM8K pass@1, full 1,319-problem held-out set</h3>
-          <div className="card">
+          {/* The page's one architectural moment: the headline result under an arch. */}
+          <div className="card arch">
             <h4>Lenient scoring (last number in the output)</h4>
             <RevealBars
               rows={[
@@ -110,7 +113,7 @@ export default function Results() {
         <ForgeSecLabel num="03" label="Training dynamics" />
         <Reveal>
           <h3 className="prose-h">750 steps, 86.2 minutes, one 8GB card</h3>
-          <div className="card span">
+          <div className="card span figure">
             <img
               className="curve"
               src="/reward_curve.png"

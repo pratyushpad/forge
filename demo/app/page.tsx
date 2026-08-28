@@ -6,10 +6,10 @@ import examplesData from "../public/examples.json";
 import { gsap, useGSAP } from "../lib/gsap";
 import { gsapEaseOut, prefersReducedMotion, replayDuration } from "../lib/motion";
 import { useTypewriter } from "./_components/motion/useTypewriter";
-import TextIgnite from "./_components/motion/TextIgnite";
+import HeadlineReveal from "./_components/motion/HeadlineReveal";
 import CountUp from "./_components/motion/CountUp";
-import Magnetic from "./_components/motion/Magnetic";
 import PathDraw from "./_components/motion/PathDraw";
+import VineRule from "./_components/motion/VineRule";
 import ForgeSecLabel from "./_components/ForgeSecLabel";
 
 type ModelOut = {
@@ -110,12 +110,27 @@ function VerdictChip({ label, out }: { label: string; out: ModelOut }) {
 
 const enter = (ms: number): CSSProperties => ({ animationDelay: `${ms}ms` });
 
-// The training-signal sparkline in the hero — a smoothed approximation of the
-// real mean-group-reward curve (1.23 → 2.80 over 750 steps; see /results for
-// the full plot). Waypoints are illustrative of the real trajectory shape,
-// not a resample of the raw log.
+// The training-signal line inside the hero arch — a smoothed approximation of
+// the real mean-group-reward curve (1.23 → 2.80 over 750 steps; see /results
+// for the full plot). Waypoints are illustrative of the real trajectory shape,
+// not a resample of the raw log. Drawn as a climbing stem, terracotta bud at
+// the tip.
 const CURVE_PATH =
   "M0 62 C 22 58, 30 46, 48 42 C 68 38, 78 30, 96 26 C 116 22, 128 18, 148 14 C 168 10, 190 8, 212 6";
+
+const ARROW = (
+  <span className="deep-arrow" aria-hidden="true">
+    <svg width="28" height="10" viewBox="0 0 28 10" fill="none">
+      <path
+        d="M0 5h26M22 1l4 4-4 4"
+        stroke="currentColor"
+        strokeWidth="1.2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  </span>
+);
 
 export default function Home() {
   const [activeIdx, setActiveIdx] = useState(0);
@@ -193,17 +208,21 @@ export default function Home() {
       <header>
         <div className="hero-grid hero-inner">
           <div>
-            <div className="enter" style={enter(280)}>
+            <div className="enter" style={enter(160)}>
               <div className="bar" />
               <div className="eyebrow">Forge · RL with verifiable rewards</div>
             </div>
-            <TextIgnite as="h1">Teaching a 1.5B model to reason with RL</TextIgnite>
-            <p className="enter" style={enter(340)}>
+            <HeadlineReveal as="h1">
+              <>
+                Teaching a 1.5B model to <i>reason</i> with RL
+              </>
+            </HeadlineReveal>
+            <p className="enter" style={enter(240)}>
               Qwen2.5-1.5B, trained with GRPO (reinforcement learning against a math checker, the
               technique behind DeepSeek-R1) on a single 8GB RTX 5060. Compare the base model and
               the tuned model on the same problem, side by side.
             </p>
-            <div className="hero-actions enter" style={enter(400)}>
+            <div className="hero-actions enter" style={enter(320)}>
               <Link className="hero-cta primary" href="/playground">
                 Run it live
               </Link>
@@ -213,15 +232,24 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="hero-graph enter" style={enter(360)} aria-hidden="true">
+          <div className="hero-graph enter" style={enter(280)}>
             <div className="hero-graph-label">Training signal · mean group reward</div>
-            <svg viewBox="0 0 220 72" fill="none">
-              <PathDraw d={CURVE_PATH} stroke="var(--accent)" strokeWidth={1.75} strokeLinecap="round" duration={1.1} />
-              <circle cx="212" cy="6" r="2.5" fill="var(--accent)" />
+            <svg viewBox="0 0 220 72" fill="none" aria-hidden="true">
+              <PathDraw
+                d={CURVE_PATH}
+                stroke="currentColor"
+                strokeWidth={1.5}
+                strokeLinecap="round"
+                duration={1.6}
+              />
+              <circle cx="212" cy="6" r="3" fill="var(--terracotta)" />
             </svg>
             <div className="hero-graph-vals">
               <span className="from">1.23</span>
-              <span className="to">2.80 of 3.25</span>
+              <span className="sep">to</span>
+              <span className="to">
+                2.80 <small>of 3.25</small>
+              </span>
             </div>
             <p className="hero-graph-caption">
               750 steps, 86 minutes. Full curve and every training figure on{" "}
@@ -231,7 +259,7 @@ export default function Home() {
         </div>
 
         <div className="statbar">
-          <div className="stat hero enter" style={enter(440)}>
+          <div className="stat hero enter" style={enter(380)}>
             <div className="k">GSM8K pass@1</div>
             <div className="v">
               <CountUp value={58.8} decimals={1} suffix="%" /> <span className="arrow">→</span>{" "}
@@ -241,14 +269,14 @@ export default function Home() {
               </small>
             </div>
           </div>
-          <div className="stat enter" style={enter(480)}>
+          <div className="stat enter" style={enter(420)}>
             <div className="k">Forgetting (ARC)</div>
             <div className="v">
               <CountUp value={69.5} decimals={1} /> → <CountUp value={68.5} decimals={1} />{" "}
               <small>≈flat</small>
             </div>
           </div>
-          <div className="stat enter" style={enter(520)}>
+          <div className="stat enter" style={enter(460)}>
             <div className="k">Train time</div>
             <div className="v">
               <CountUp value={86} suffix=" min" />{" "}
@@ -257,7 +285,7 @@ export default function Home() {
               </small>
             </div>
           </div>
-          <div className="stat enter" style={enter(560)}>
+          <div className="stat enter" style={enter(500)}>
             <div className="k">Served</div>
             <div className="v">
               <CountUp value={228} /> <small>tok/s</small>
@@ -267,7 +295,10 @@ export default function Home() {
       </header>
 
       <section>
-        <ForgeSecLabel num="01" label="Pick a problem" />
+        <ForgeSecLabel num="01" label="The demo" />
+        <h2>
+          Pick a <i>problem</i>
+        </h2>
         <div className="picker">
           {EXAMPLES.map((e, i) => (
             <button
@@ -298,7 +329,10 @@ export default function Home() {
       </section>
 
       <section ref={sideRef}>
-        <ForgeSecLabel num="02" label="Side by side" />
+        <ForgeSecLabel num="02" label="Comparison" />
+        <h2>
+          The same problem, <i>twice</i>
+        </h2>
         <div className="grid">
           <ModelColumn
             kind="base"
@@ -333,52 +367,52 @@ export default function Home() {
         </div>
       </section>
 
+      <VineRule />
+
       <section>
         <ForgeSecLabel num="03" label="Go deeper" />
-        <h2>The rest of the evidence</h2>
+        <h2>
+          The rest of the <i>evidence</i>
+        </h2>
+        {/* Every second card drops at md+ (CSS), so the row reads as grown
+            rather than laid out. */}
         <div className="deeper">
-          <Magnetic strength={0.12} className="deep-magnet">
-            <Link className="deep-card" href="/playground">
-              <span className="deep-glow" aria-hidden="true" />
-              <span className="deep-k">Playground</span>
-              <span className="deep-t">Run it yourself, live</span>
-              <span className="deep-d">
-                Type any problem. Both models answer side by side on a real GPU, streaming.
-              </span>
-            </Link>
-          </Magnetic>
-          <Magnetic strength={0.12} className="deep-magnet">
-            <Link className="deep-card" href="/method">
-              <span className="deep-glow" aria-hidden="true" />
-              <span className="deep-k">Method</span>
-              <span className="deep-t">How GRPO actually works</span>
-              <span className="deep-d">
-                The reward stack, and the bug where every reward was zero so the run learned
-                nothing.
-              </span>
-            </Link>
-          </Magnetic>
-          <Magnetic strength={0.12} className="deep-magnet">
-            <Link className="deep-card" href="/results">
-              <span className="deep-glow" aria-hidden="true" />
-              <span className="deep-k">Results</span>
-              <span className="deep-t">Every number, and its source</span>
-              <span className="deep-d">
-                Strict vs lenient scoring, the forgetting control, quantization cost, serving
-                latency.
-              </span>
-            </Link>
-          </Magnetic>
-          <Magnetic strength={0.12} className="deep-magnet">
-            <Link className="deep-card" href="/traces">
-              <span className="deep-glow" aria-hidden="true" />
-              <span className="deep-k">Traces</span>
-              <span className="deep-t">Read the reasoning</span>
-              <span className="deep-d">
-                Unedited completions on held-out problems, including the one both models miss.
-              </span>
-            </Link>
-          </Magnetic>
+          <Link className="deep-card" href="/playground">
+            <span className="deep-glow" aria-hidden="true" />
+            <span className="deep-k">Playground</span>
+            <span className="deep-t">Run it yourself, live</span>
+            <span className="deep-d">
+              Type any problem. Both models answer side by side on a real GPU, streaming.
+            </span>
+            {ARROW}
+          </Link>
+          <Link className="deep-card" href="/method">
+            <span className="deep-glow" aria-hidden="true" />
+            <span className="deep-k">Method</span>
+            <span className="deep-t">How GRPO actually works</span>
+            <span className="deep-d">
+              The reward stack, and the bug where every reward was zero so the run learned nothing.
+            </span>
+            {ARROW}
+          </Link>
+          <Link className="deep-card" href="/results">
+            <span className="deep-glow" aria-hidden="true" />
+            <span className="deep-k">Results</span>
+            <span className="deep-t">Every number, and its source</span>
+            <span className="deep-d">
+              Strict vs lenient scoring, the forgetting control, quantization cost, serving latency.
+            </span>
+            {ARROW}
+          </Link>
+          <Link className="deep-card" href="/traces">
+            <span className="deep-glow" aria-hidden="true" />
+            <span className="deep-k">Traces</span>
+            <span className="deep-t">Read the reasoning</span>
+            <span className="deep-d">
+              Unedited completions on held-out problems, including the one both models miss.
+            </span>
+            {ARROW}
+          </Link>
         </div>
       </section>
 

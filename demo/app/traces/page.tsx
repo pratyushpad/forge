@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import tracesData from "../../public/traces.json";
 import { answersMatch, cleanAnswer, extractReasoning } from "../../lib/parse";
 import ForgeSecLabel from "../_components/ForgeSecLabel";
-import TextIgnite from "../_components/motion/TextIgnite";
+import HeadlineReveal from "../_components/motion/HeadlineReveal";
 import Reveal from "../_components/motion/Reveal";
 import TraceDisclosure from "../_components/TraceDisclosure";
 
@@ -57,9 +57,11 @@ export default function Traces() {
     <div className="wrap">
       <section className="pg-head">
         <ForgeSecLabel num="00" label="Traces · receipts" />
-        <TextIgnite as="h2">
-          What actually changed in the reasoning
-        </TextIgnite>
+        <HeadlineReveal as="h2">
+          <>
+            What actually changed in the <i>reasoning</i>
+          </>
+        </HeadlineReveal>
         <p className="pg-lede">
           Aggregate percentages tell you something improved. They don&apos;t tell you what. These are
           complete, unedited outputs from both models on the same held-out problems: the arithmetic

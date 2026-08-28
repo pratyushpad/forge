@@ -11,7 +11,7 @@ import {
 } from "../../lib/parse";
 import ModelColumn, { type Phase } from "../_components/ModelColumn";
 import ForgeSecLabel from "../_components/ForgeSecLabel";
-import TextIgnite from "../_components/motion/TextIgnite";
+import HeadlineReveal from "../_components/motion/HeadlineReveal";
 import { gsap, useGSAP } from "../../lib/gsap";
 import { gsapEaseOut, prefersReducedMotion } from "../../lib/motion";
 
@@ -176,9 +176,11 @@ export default function Playground() {
     <div className="wrap">
       <section className="pg-head">
         <ForgeSecLabel num="00" label="Playground · live inference" />
-        <TextIgnite as="h2">
-          Run both models yourself
-        </TextIgnite>
+        <HeadlineReveal as="h2">
+          <>
+            Run both models <i>yourself</i>
+          </>
+        </HeadlineReveal>
         <p className="pg-lede">
           Every request below hits a real GPU: base Qwen2.5-1.5B-Instruct and the GRPO-tuned
           adapter, served side by side from one vLLM process with multi-LoRA. Same prompt, same
