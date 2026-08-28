@@ -206,7 +206,7 @@ export default function Home() {
   return (
     <div className="wrap">
       <header>
-        <div className="hero-grid hero-inner">
+        <div className="hero-grid">
           <div>
             <div className="enter" style={enter(160)}>
               <div className="bar" />
