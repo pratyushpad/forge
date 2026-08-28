@@ -1,19 +1,13 @@
-"use client";
-
-import PathDraw from "./motion/PathDraw";
-
-// Forged section header — a drawn heat-rule (PathDraw) + a stamped hallmark
-// numeral. Shipped first on the home page (Phase 1); extracted here so every
-// route can share it in place of the plain `.sec-label` eyebrow. Its
-// `.forge-sec*` CSS lives in globals.css and is already global.
+// Quiet section eyebrow — a hairline tick, an accent-colored numeral, and a
+// muted mono label. Shared by every route. Where the numbers correspond to
+// an actual sequence (a real ordered process, like the method page's steps),
+// they carry information; elsewhere they're just a scan aid. No drawn
+// rule, no stamp animation — this is a static label, not a showpiece.
 export default function ForgeSecLabel({ num, label }: { num: string; label: string }) {
   return (
-    <div className="forge-sec">
-      <svg className="forge-sec-rule" width="48" height="6" viewBox="0 0 48 6" aria-hidden="true">
-        <PathDraw d="M0 3 H48" stroke="var(--ember)" strokeWidth={2} strokeLinecap="round" duration={0.7} />
-      </svg>
-      <span className="forge-sec-num">{num}</span>
-      <span className="forge-sec-label">{label}</span>
+    <div className="sec-label">
+      <span className="sec-num">{num}</span>
+      {label}
     </div>
   );
 }

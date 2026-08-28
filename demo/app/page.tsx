@@ -1,30 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import dynamic from "next/dynamic";
 import { useEffect, useRef, useState, type CSSProperties, type RefObject } from "react";
 import examplesData from "../public/examples.json";
-import { gsap, ScrollTrigger, useGSAP } from "../lib/gsap";
-import { gsapEaseInOut, gsapEaseOut, prefersReducedMotion, replayDuration } from "../lib/motion";
+import { gsap, useGSAP } from "../lib/gsap";
+import { gsapEaseOut, prefersReducedMotion, replayDuration } from "../lib/motion";
 import { useTypewriter } from "./_components/motion/useTypewriter";
 import TextIgnite from "./_components/motion/TextIgnite";
 import CountUp from "./_components/motion/CountUp";
 import Magnetic from "./_components/motion/Magnetic";
 import PathDraw from "./_components/motion/PathDraw";
 import ForgeSecLabel from "./_components/ForgeSecLabel";
-
-// The OGL shader chunk stays out of the server bundle and the initial client
-// payload — it's pure decoration behind the (server-rendered) H1, never the
-// LCP element. `null` while loading keeps the DOM identical server/client.
-const HeroShader = dynamic(() => import("./_components/HeroShader"), { ssr: false });
-
-// Same three chamfered-F paths as ForgeMark.tsx (viewBox 0 0 40 40), drawn
-// large as a low-contrast hero watermark instead of rendered as a nav glyph.
-const FORGE_MARK_PATHS = [
-  "M11 9 H17 V27 L14 31 L11 27 Z",
-  "M11 9 H30 L24 16 H11 Z",
-  "M11 19 H26 L20 25 H11 Z",
-];
 
 type ModelOut = {
   raw: string;
@@ -52,7 +38,6 @@ function ModelColumn({
   gold,
   colRef,
   flareRef,
-  sparksRef,
 }: {
   kind: "base" | "tuned";
   out: ModelOut | null;
@@ -60,9 +45,8 @@ function ModelColumn({
   gold: string;
   colRef?: RefObject<HTMLDivElement | null>;
   flareRef?: RefObject<HTMLSpanElement | null>;
-  sparksRef?: RefObject<HTMLSpanElement | null>;
 }) {
-  const label = kind === "tuned" ? "GRPO-tuned" : "Base";
+  const label = kind === "tuned" ? "Tuned" : "Base";
   const sub = kind === "tuned" ? "Qwen2.5-1.5B + GRPO" : "Qwen2.5-1.5B-Instruct";
   const showAnswer = out && streaming.done;
   const clean = out ? cleanAnswer(out.answer) : null;
@@ -79,16 +63,10 @@ function ModelColumn({
   return (
     <div className={`col ${kind}`} ref={colRef}>
       {kind === "tuned" && (
-        <>
-          {/* The strike payoff — both start fully transparent; a GSAP
-              timeline in Home fires them once the tuned answer lands correct. */}
-          <span className="strike-flare" ref={flareRef} aria-hidden="true" />
-          <span className="strike-sparks" ref={sparksRef} aria-hidden="true">
-            {Array.from({ length: 7 }).map((_, i) => (
-              <span key={i} className="spark" />
-            ))}
-          </span>
-        </>
+        // Confirmation payoff — starts fully transparent; a GSAP timeline in
+        // Home fires it once the tuned answer lands correct. A single soft
+        // glow, not a particle effect.
+        <span className="confirm-flare" ref={flareRef} aria-hidden="true" />
       )}
       <h3>
         {label} <span className={`badge ${kind}`}>{sub}</span>
@@ -102,13 +80,13 @@ function ModelColumn({
         <span className="label">answer</span>
         {showAnswer ? (
           <>
-            <span className={`val reveal ${out!.correct ? "ok" : "bad"}`}>{clean ?? "—"}</span>
+            <span className={`val reveal ${out!.correct ? "ok" : "bad"}`}>{clean ?? "–"}</span>
             <span className={`mark reveal ${out!.correct ? "ok" : "bad"}`}>
               {out!.correct
                 ? "✓ correct"
                 : clean
-                  ? `✗ wrong · gold ${gold}`
-                  : `✗ no clear answer · gold ${gold}`}
+                  ? `✗ wrong, gold ${gold}`
+                  : `✗ no clear answer, gold ${gold}`}
             </span>
           </>
         ) : (
@@ -132,51 +110,24 @@ function VerdictChip({ label, out }: { label: string; out: ModelOut }) {
 
 const enter = (ms: number): CSSProperties => ({ animationDelay: `${ms}ms` });
 
+// The training-signal sparkline in the hero — a smoothed approximation of the
+// real mean-group-reward curve (1.23 → 2.80 over 750 steps; see /results for
+// the full plot). Waypoints are illustrative of the real trajectory shape,
+// not a resample of the raw log.
+const CURVE_PATH =
+  "M0 62 C 22 58, 30 46, 48 42 C 68 38, 78 30, 96 26 C 116 22, 128 18, 148 14 C 168 10, 190 8, 212 6";
+
 export default function Home() {
   const [activeIdx, setActiveIdx] = useState(0);
   const [active, setActive] = useState<Example | null>(null);
   const [running, setRunning] = useState(false);
   const [strike, setStrike] = useState(false);
-  const [enableShader, setEnableShader] = useState(false);
   const base = useTypewriter();
   const tuned = useTypewriter();
 
-  const heroRef = useRef<HTMLElement | null>(null);
-  const coolRef = useRef(0);
   const sideRef = useRef<HTMLDivElement | null>(null);
   const tunedColRef = useRef<HTMLDivElement | null>(null);
   const flareRef = useRef<HTMLSpanElement | null>(null);
-  const sparksRef = useRef<HTMLSpanElement | null>(null);
-
-  // The renderer never even gets created under reduced motion (checked once,
-  // client-only, after mount — so server/first-paint DOM has no canvas at all
-  // and there's nothing to hydrate-mismatch on).
-  useEffect(() => {
-    if (!prefersReducedMotion()) setEnableShader(true);
-  }, []);
-
-  // Scroll cools the molten field: a scrub ScrollTrigger over the hero writes
-  // scroll progress into a ref (not React state) so the shader's rAF loop can
-  // ease toward it without re-rendering this component on every scroll tick.
-  useGSAP(
-    () => {
-      const mm = gsap.matchMedia();
-      mm.add("(prefers-reduced-motion: no-preference)", () => {
-        const st = ScrollTrigger.create({
-          trigger: heroRef.current,
-          start: "top top",
-          end: "bottom top",
-          scrub: true,
-          onUpdate: (self) => {
-            coolRef.current = self.progress;
-          },
-        });
-        return () => st.kill();
-      });
-      return () => mm.revert();
-    },
-    { scope: heroRef },
-  );
 
   const run = async (i: number) => {
     const ex = EXAMPLES[i];
@@ -189,9 +140,9 @@ export default function Home() {
       tuned.run(ex.models.tuned.reasoning, replayDuration(ex.models.tuned)),
     ]);
     setRunning(false);
-    // The strike only fires when the forged model actually lands the right
-    // answer — one held-out example has both models wrong, and that stays a
-    // cold, uncelebrated miss on both sides. No theater over a real result.
+    // The confirmation only fires when the tuned model actually lands the
+    // right answer — one held-out example has both models wrong, and that
+    // stays an uncelebrated miss on both sides. No theater over a real result.
     if (ex.models.tuned.correct) setStrike(true);
   };
 
@@ -200,9 +151,8 @@ export default function Home() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // The strike — a hammer-pulse on the tuned column, its heat tick flaring,
-  // and a spark burst from the heat bar. Event-driven off `strike`, not
-  // scroll-pinned, so it's robust to wherever the section happens to sit.
+  // The confirmation cue: a soft accent glow on the tuned column, plus a
+  // barely-there scale settle on its verdict chip. Event-driven off `strike`.
   useGSAP(
     () => {
       if (!strike) return;
@@ -210,45 +160,23 @@ export default function Home() {
       if (!tunedEl) return;
 
       if (prefersReducedMotion()) {
-        // Reduced motion still gets the feedback — just the final flare
-        // state, no movement.
         if (flareRef.current) gsap.set(flareRef.current, { opacity: 1 });
         return;
       }
 
       const tl = gsap.timeline();
-      tl.fromTo(tunedEl, { scale: 1 }, { scale: 0.985, duration: 0.08, ease: "power1.out" })
-        .to(tunedEl, { scale: 1.025, duration: 0.14, ease: gsapEaseOut })
-        .to(tunedEl, { scale: 1, duration: 0.24, ease: gsapEaseInOut });
+      tl.fromTo(tunedEl, { scale: 1 }, { scale: 0.99, duration: 0.08, ease: "power1.out" }).to(
+        tunedEl,
+        { scale: 1, duration: 0.22, ease: gsapEaseOut },
+      );
 
       if (flareRef.current) {
         gsap.set(flareRef.current, { opacity: 0 });
-        tl.to(flareRef.current, { opacity: 1, duration: 0.1, ease: "power1.out" }, 0.04).to(
+        tl.to(flareRef.current, { opacity: 1, duration: 0.14, ease: gsapEaseOut }, 0.04).to(
           flareRef.current,
-          { opacity: 0.3, duration: 0.6, ease: gsapEaseInOut },
+          { opacity: 0, duration: 0.5, ease: gsapEaseOut },
           ">",
         );
-      }
-
-      if (sparksRef.current) {
-        const sparks = Array.from(sparksRef.current.querySelectorAll<HTMLElement>(".spark"));
-        gsap.set(sparks, { opacity: 0, x: 0, y: 0, scale: 0.6 });
-        sparks.forEach((s, i) => {
-          const angle = (i / sparks.length) * Math.PI * 2;
-          const dist = 26 + (i % 3) * 10;
-          tl.to(
-            s,
-            {
-              x: Math.cos(angle) * dist,
-              y: Math.sin(angle) * dist - 8,
-              opacity: 1,
-              scale: 1,
-              duration: 0.22,
-              ease: "power2.out",
-            },
-            0.02,
-          ).to(s, { opacity: 0, duration: 0.4, ease: gsapEaseInOut }, 0.24);
-        });
       }
 
       return () => {
@@ -262,42 +190,44 @@ export default function Home() {
 
   return (
     <div className="wrap">
-      <header ref={heroRef as never}>
-        {enableShader && <HeroShader coolRef={coolRef} />}
-
-        <svg className="hero-watermark" viewBox="0 0 40 40" aria-hidden="true" focusable="false">
-          <defs>
-            <linearGradient id="hero-watermark-heat" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0" stopColor="var(--ember-deep)" />
-              <stop offset="0.55" stopColor="var(--ember)" />
-              <stop offset="1" stopColor="var(--glow)" />
-            </linearGradient>
-          </defs>
-          {FORGE_MARK_PATHS.map((d, i) => (
-            <PathDraw
-              key={i}
-              d={d}
-              duration={1.1}
-              stroke="url(#hero-watermark-heat)"
-              strokeWidth={0.6}
-              strokeLinejoin="round"
-            />
-          ))}
-        </svg>
-
-        <div className="hero-inner">
-          <div className="enter" style={enter(320)}>
-            <div className="bar" />
-            <div className="eyebrow">Forge · RL with verifiable rewards</div>
+      <header>
+        <div className="hero-grid hero-inner">
+          <div>
+            <div className="enter" style={enter(280)}>
+              <div className="bar" />
+              <div className="eyebrow">Forge · RL with verifiable rewards</div>
+            </div>
+            <TextIgnite as="h1">Teaching a 1.5B model to reason with RL</TextIgnite>
+            <p className="enter" style={enter(340)}>
+              Qwen2.5-1.5B, trained with GRPO (reinforcement learning against a math checker, the
+              technique behind DeepSeek-R1) on a single 8GB RTX 5060. Compare the base model and
+              the tuned model on the same problem, side by side.
+            </p>
+            <div className="hero-actions enter" style={enter(400)}>
+              <Link className="hero-cta primary" href="/playground">
+                Run it live
+              </Link>
+              <Link className="hero-cta ghost" href="/method">
+                How it works
+              </Link>
+            </div>
           </div>
-          <TextIgnite as="h1" igniteWord="reason">
-            Forged to reason
-          </TextIgnite>
-          <p className="enter" style={enter(380)}>
-            Qwen2.5-1.5B, heat-treated with GRPO (reinforcement learning against a math checker,
-            the DeepSeek-R1 technique) on a single 8GB RTX 5060. Watch the cold base model and the
-            forged model solve the same problem, side by side.
-          </p>
+
+          <div className="hero-graph enter" style={enter(360)} aria-hidden="true">
+            <div className="hero-graph-label">Training signal · mean group reward</div>
+            <svg viewBox="0 0 220 72" fill="none">
+              <PathDraw d={CURVE_PATH} stroke="var(--accent)" strokeWidth={1.75} strokeLinecap="round" duration={1.1} />
+              <circle cx="212" cy="6" r="2.5" fill="var(--accent)" />
+            </svg>
+            <div className="hero-graph-vals">
+              <span className="from">1.23</span>
+              <span className="to">2.80 of 3.25</span>
+            </div>
+            <p className="hero-graph-caption">
+              750 steps, 86 minutes. Full curve and every training figure on{" "}
+              <Link href="/results">Results</Link>.
+            </p>
+          </div>
         </div>
 
         <div className="statbar">
@@ -311,14 +241,14 @@ export default function Home() {
               </small>
             </div>
           </div>
-          <div className="stat enter" style={enter(490)}>
+          <div className="stat enter" style={enter(480)}>
             <div className="k">Forgetting (ARC)</div>
             <div className="v">
               <CountUp value={69.5} decimals={1} /> → <CountUp value={68.5} decimals={1} />{" "}
               <small>≈flat</small>
             </div>
           </div>
-          <div className="stat enter" style={enter(540)}>
+          <div className="stat enter" style={enter(520)}>
             <div className="k">Train time</div>
             <div className="v">
               <CountUp value={86} suffix=" min" />{" "}
@@ -327,7 +257,7 @@ export default function Home() {
               </small>
             </div>
           </div>
-          <div className="stat enter" style={enter(590)}>
+          <div className="stat enter" style={enter(560)}>
             <div className="k">Served</div>
             <div className="v">
               <CountUp value={228} /> <small>tok/s</small>
@@ -383,22 +313,21 @@ export default function Home() {
             gold={active?.gold ?? ""}
             colRef={tunedColRef}
             flareRef={flareRef}
-            sparksRef={sparksRef}
           />
         </div>
 
         <div className="verdictbar">
           {settled ? (
-            <div className={`verdict${strike ? " forge-stamp" : ""}`}>
+            <div className={`verdict${strike ? " confirm-stamp" : ""}`}>
               <VerdictChip label="Base" out={active!.models.base} />
-              <VerdictChip label="GRPO-tuned" out={active!.models.tuned} />
+              <VerdictChip label="Tuned" out={active!.models.tuned} />
               <span className="gold">gold answer: {active!.gold}</span>
             </div>
           ) : (
             <div className="verdict pending">solving…</div>
           )}
           <div className="tally">
-            Base {BASE_WINS}/{EXAMPLES.length} · GRPO-tuned {TUNED_WINS}/{EXAMPLES.length} on these
+            Base {BASE_WINS}/{EXAMPLES.length} · Tuned {TUNED_WINS}/{EXAMPLES.length} on these
             examples
           </div>
         </div>
@@ -454,8 +383,8 @@ export default function Home() {
       </section>
 
       <footer>
-        Base {BASE_WINS}/{EXAMPLES.length} vs GRPO-tuned {TUNED_WINS}/{EXAMPLES.length} on the
-        examples above ·{" "}
+        Base {BASE_WINS}/{EXAMPLES.length} vs Tuned {TUNED_WINS}/{EXAMPLES.length} on the examples
+        above ·{" "}
         <a href="https://github.com/pratyushpad/Forge" target="_blank" rel="noreferrer">
           source &amp; model card on GitHub
         </a>

@@ -5,7 +5,7 @@ import Reveal from "../_components/motion/Reveal";
 import RewardStack from "../_components/RewardStack";
 
 export const metadata: Metadata = {
-  title: "Method — how Forge was trained",
+  title: "Method: how Forge was trained",
   description:
     "GRPO explained plainly: group-relative advantages, a programmatic reward stack, the reward cold-start bug that produced zero gradient, and the 8GB-card setup.",
 };
@@ -44,7 +44,7 @@ export default function Method() {
     <div className="wrap">
       <section className="pg-head">
         <ForgeSecLabel num="00" label="Method · how it works" />
-        <TextIgnite as="h2" igniteWord="Reinforcement">
+        <TextIgnite as="h2">
           Reinforcement learning against a math checker
         </TextIgnite>
         <p className="pg-lede">

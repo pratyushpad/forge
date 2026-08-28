@@ -5,7 +5,7 @@ import TextIgnite from "../_components/motion/TextIgnite";
 import Reveal from "../_components/motion/Reveal";
 
 export const metadata: Metadata = {
-  title: "Results — the evidence",
+  title: "Results: the evidence",
   description:
     "GSM8K 58.8% → 70.0% on the full 1,319-problem held-out set, an ARC-Challenge forgetting check, training dynamics, and the quantization quality/size/speed trade.",
 };
@@ -18,7 +18,7 @@ export default function Results() {
     <div className="wrap">
       <section className="pg-head">
         <ForgeSecLabel num="00" label="Results · the evidence" />
-        <TextIgnite as="h2" igniteWord="number">
+        <TextIgnite as="h2">
           Every number, and where it came from
         </TextIgnite>
         <p className="pg-lede">

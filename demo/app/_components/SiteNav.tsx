@@ -19,7 +19,7 @@ export default function SiteNav() {
     <nav className="sitenav" aria-label="Primary">
       <div className="sitenav-inner">
         <Link href="/" className="wordmark">
-          <ForgeMark size={22} heat />
+          <ForgeMark size={20} accent />
           Forge
         </Link>
         <ul className="navlinks">

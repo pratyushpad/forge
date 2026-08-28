@@ -7,7 +7,7 @@ export type Phase = "idle" | "waking" | "streaming" | "done" | "cached" | "error
 
 const STATUS: Record<Phase, string | null> = {
   idle: null,
-  waking: "stoking the forge · waking the GPU",
+  waking: "waking the GPU",
   streaming: "generating",
   done: "live",
   cached: "cached replay",
@@ -22,7 +22,6 @@ export default function ModelColumn({
   note,
   colRef,
   flareRef,
-  sparksRef,
 }: {
   kind: "base" | "tuned";
   phase: Phase;
@@ -30,14 +29,13 @@ export default function ModelColumn({
   /** Gold answer, when one is known (seed problems only). Null ⇒ render ungraded. */
   gold: string | null;
   note?: string;
-  /** Same "strike" chrome as the home page §02 columns — optional, only wired
-   *  up by callers (playground) that drive the GSAP hammer-pulse/flare/spark
+  /** Same confirmation chrome as the home page §02 columns — optional, only
+   *  wired up by callers (playground) that drive the GSAP settle/glow
    *  timeline off these refs. Unused refs render inert, opacity-0 markup. */
   colRef?: RefObject<HTMLDivElement | null>;
   flareRef?: RefObject<HTMLSpanElement | null>;
-  sparksRef?: RefObject<HTMLSpanElement | null>;
 }) {
-  const label = kind === "tuned" ? "GRPO-tuned" : "Base";
+  const label = kind === "tuned" ? "Tuned" : "Base";
   const sub = kind === "tuned" ? "Qwen2.5-1.5B + GRPO" : "Qwen2.5-1.5B-Instruct";
   const paneRef = useRef<HTMLDivElement | null>(null);
 
@@ -63,16 +61,9 @@ export default function ModelColumn({
   return (
     <div className={`col ${kind}`} ref={colRef}>
       {kind === "tuned" && (
-        <>
-          {/* Strike payoff — transparent at rest; a caller-driven GSAP timeline
-              fires these once the tuned answer lands correct. */}
-          <span className="strike-flare" ref={flareRef} aria-hidden="true" />
-          <span className="strike-sparks" ref={sparksRef} aria-hidden="true">
-            {Array.from({ length: 7 }).map((_, i) => (
-              <span key={i} className="spark" />
-            ))}
-          </span>
-        </>
+        // Confirmation payoff — transparent at rest; a caller-driven GSAP
+        // timeline fires it once the tuned answer lands correct.
+        <span className="confirm-flare" ref={flareRef} aria-hidden="true" />
       )}
       <h3>
         {label} <span className={`badge ${kind}`}>{sub}</span>
@@ -109,19 +100,19 @@ export default function ModelColumn({
             <span
               className={`val reveal ${correct === null ? "" : correct ? "ok" : "bad"}`}
             >
-              {clean ?? "—"}
+              {clean ?? "–"}
             </span>
             {correct === null ? (
               <span className="mark reveal neutral">
-                {clean ? "ungraded · no gold answer" : "no clear answer"}
+                {clean ? "ungraded, no gold answer" : "no clear answer"}
               </span>
             ) : (
               <span className={`mark reveal ${correct ? "ok" : "bad"}`}>
                 {correct
                   ? "✓ correct"
                   : clean
-                    ? `✗ wrong · gold ${gold}`
-                    : `✗ no clear answer · gold ${gold}`}
+                    ? `✗ wrong, gold ${gold}`
+                    : `✗ no clear answer, gold ${gold}`}
               </span>
             )}
           </>

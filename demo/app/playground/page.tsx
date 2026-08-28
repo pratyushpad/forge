@@ -13,7 +13,7 @@ import ModelColumn, { type Phase } from "../_components/ModelColumn";
 import ForgeSecLabel from "../_components/ForgeSecLabel";
 import TextIgnite from "../_components/motion/TextIgnite";
 import { gsap, useGSAP } from "../../lib/gsap";
-import { gsapEaseInOut, gsapEaseOut, prefersReducedMotion } from "../../lib/motion";
+import { gsapEaseOut, prefersReducedMotion } from "../../lib/motion";
 
 type ModelOut = { raw: string; reasoning: string; answer: string | null; correct: boolean };
 type Example = { question: string; gold: string; models: { base: ModelOut; tuned: ModelOut } };
@@ -47,7 +47,6 @@ export default function Playground() {
   const sideRef = useRef<HTMLDivElement | null>(null);
   const tunedColRef = useRef<HTMLDivElement | null>(null);
   const flareRef = useRef<HTMLSpanElement | null>(null);
-  const sparksRef = useRef<HTMLSpanElement | null>(null);
 
   useEffect(() => () => abortRef.current?.abort(), []);
 
@@ -119,8 +118,8 @@ export default function Playground() {
           );
         }
         setRunning(false);
-        // Only a graded problem with a genuinely correct tuned answer earns the
-        // strike — no theater over an ungraded or wrong result.
+        // Only a graded problem with a genuinely correct tuned answer earns
+        // the confirmation cue — no theater over an ungraded or wrong result.
         if (seed?.gold && tunedRaw && answersMatch(extractAnswer(tunedRaw), seed.gold)) {
           setStrike(true);
         }
@@ -129,7 +128,7 @@ export default function Playground() {
     [running],
   );
 
-  // The strike — same hammer-pulse + flare + spark burst as the home page
+  // The confirmation cue — same soft glow + scale settle as the home page
   // §02 columns, event-driven off `strike`.
   useGSAP(
     () => {
@@ -143,38 +142,18 @@ export default function Playground() {
       }
 
       const tl = gsap.timeline();
-      tl.fromTo(tunedEl, { scale: 1 }, { scale: 0.985, duration: 0.08, ease: "power1.out" })
-        .to(tunedEl, { scale: 1.025, duration: 0.14, ease: gsapEaseOut })
-        .to(tunedEl, { scale: 1, duration: 0.24, ease: gsapEaseInOut });
+      tl.fromTo(tunedEl, { scale: 1 }, { scale: 0.99, duration: 0.08, ease: "power1.out" }).to(
+        tunedEl,
+        { scale: 1, duration: 0.22, ease: gsapEaseOut },
+      );
 
       if (flareRef.current) {
         gsap.set(flareRef.current, { opacity: 0 });
-        tl.to(flareRef.current, { opacity: 1, duration: 0.1, ease: "power1.out" }, 0.04).to(
+        tl.to(flareRef.current, { opacity: 1, duration: 0.14, ease: gsapEaseOut }, 0.04).to(
           flareRef.current,
-          { opacity: 0.3, duration: 0.6, ease: gsapEaseInOut },
+          { opacity: 0, duration: 0.5, ease: gsapEaseOut },
           ">",
         );
-      }
-
-      if (sparksRef.current) {
-        const sparks = Array.from(sparksRef.current.querySelectorAll<HTMLElement>(".spark"));
-        gsap.set(sparks, { opacity: 0, x: 0, y: 0, scale: 0.6 });
-        sparks.forEach((s, i) => {
-          const angle = (i / sparks.length) * Math.PI * 2;
-          const dist = 26 + (i % 3) * 10;
-          tl.to(
-            s,
-            {
-              x: Math.cos(angle) * dist,
-              y: Math.sin(angle) * dist - 8,
-              opacity: 1,
-              scale: 1,
-              duration: 0.22,
-              ease: "power2.out",
-            },
-            0.02,
-          ).to(s, { opacity: 0, duration: 0.4, ease: gsapEaseInOut }, 0.24);
-        });
       }
 
       return () => {
@@ -197,7 +176,7 @@ export default function Playground() {
     <div className="wrap">
       <section className="pg-head">
         <ForgeSecLabel num="00" label="Playground · live inference" />
-        <TextIgnite as="h2" igniteWord="Run">
+        <TextIgnite as="h2">
           Run both models yourself
         </TextIgnite>
         <p className="pg-lede">
@@ -235,7 +214,7 @@ export default function Playground() {
           />
           <div className="pg-actions">
             <button className="pg-go" type="submit" disabled={running || !question.trim()}>
-              {running ? "Forging…" : "Forge it"}
+              {running ? "Running…" : "Run it"}
             </button>
             <span className="pg-hint">⌘/Ctrl + Enter · first run can take ~90s while the GPU wakes</span>
           </div>
@@ -279,14 +258,13 @@ export default function Playground() {
             note={tuned.note}
             colRef={tunedColRef}
             flareRef={flareRef}
-            sparksRef={sparksRef}
           />
         </div>
 
         <div className="verdictbar">
           {settled ? (
             gold ? (
-              <div className={`verdict${strike ? " forge-stamp" : ""}`}>
+              <div className={`verdict${strike ? " confirm-stamp" : ""}`}>
                 <span className="gold">gold answer: {gold}</span>
               </div>
             ) : (
@@ -301,7 +279,7 @@ export default function Playground() {
               </div>
             )
           ) : (
-            <div className="verdict pending">{running ? "forging…" : "enter a problem above"}</div>
+            <div className="verdict pending">{running ? "running…" : "enter a problem above"}</div>
           )}
           <div className="tally">
             {gold

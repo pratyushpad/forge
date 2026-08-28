@@ -6,9 +6,9 @@ export default function NotFound() {
       <section className="fail">
         <div className="bar" />
         <div className="fail-code">404</div>
-        <h2>Nothing forged here</h2>
+        <h2>That page doesn&apos;t exist</h2>
         <p className="prose">
-          That page doesn&apos;t exist. The five that do are below.
+          The five routes that do exist are below.
         </p>
         <ul className="fail-links">
           <li>

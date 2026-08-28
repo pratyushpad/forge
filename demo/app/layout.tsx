@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
-import { Archivo_Black, Inter_Tight, JetBrains_Mono } from "next/font/google";
+import { Space_Grotesk, Inter_Tight, JetBrains_Mono } from "next/font/google";
 import SiteNav from "./_components/SiteNav";
 import "./tokens.css";
 import "./globals.css";
 
-const display = Archivo_Black({
-  weight: "400",
+const display = Space_Grotesk({
+  weight: ["500", "700"],
   subsets: ["latin"],
   variable: "--font-display",
   display: "swap",
@@ -15,20 +15,20 @@ const jetbrainsMono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-mon
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://forge-grpo.vercel.app"),
-  title: "Forge — GRPO reasoning, base vs tuned",
+  title: "Forge: GRPO reasoning, base vs tuned",
   description:
-    "Qwen2.5-1.5B taught to reason with GRPO on an 8GB GPU. Compare the base model against the GRPO-tuned model side by side on grade-school math.",
+    "Qwen2.5-1.5B taught to reason with GRPO on an 8GB GPU. Compare the base model against the tuned model side by side on grade-school math.",
   openGraph: {
-    title: "Forge — GRPO reasoning, base vs tuned",
+    title: "Forge: GRPO reasoning, base vs tuned",
     description:
-      "GSM8K pass@1 58.8% → 70.0% from RL alone on an 8 GB RTX 5060. Watch the base and GRPO-tuned models solve the same problems side by side.",
+      "GSM8K pass@1 58.8% to 70.0% from RL alone on an 8 GB RTX 5060. Watch the base and tuned models solve the same problems side by side.",
     url: "/",
     siteName: "Forge",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Forge — GRPO reasoning, base vs tuned",
-    description: "GSM8K pass@1 58.8% → 70.0% from RL alone on an 8 GB RTX 5060.",
+    title: "Forge: GRPO reasoning, base vs tuned",
+    description: "GSM8K pass@1 58.8% to 70.0% from RL alone on an 8 GB RTX 5060.",
   },
 };
 

@@ -19,7 +19,7 @@ export default function Error({
       <section className="fail">
         <div className="bar" />
         <div className="fail-code">Error</div>
-        <h2>That didn&apos;t hold heat</h2>
+        <h2>Something went wrong</h2>
         <p className="prose">
           Something broke rendering this page. The rest of the site is static and should still work.
           If you were on the playground, the GPU endpoint scales to zero, so a retry after a moment

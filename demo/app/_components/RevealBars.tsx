@@ -19,7 +19,7 @@ export type BarRow = {
  * Reduced motion is handled globally (transitions collapse to ~0ms, final state).
  *
  * The value label counts up (CountUp) instead of rendering static text, and
- * the tuned row gets a faint `--cold` ghost tick at the base row's value —
+ * the tuned row gets a faint `--series-base` ghost tick at the base row's value —
  * a still marker behind the moving fill so the delta reads at a glance.
  */
 export default function RevealBars({ rows, max = 100 }: { rows: BarRow[]; max?: number }) {

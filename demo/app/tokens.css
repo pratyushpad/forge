@@ -1,46 +1,64 @@
 /* ============================================================
-   Molten Industrial — Forge design tokens
+   Forge design tokens — quiet engineering-report system.
    Single source of truth for all CSS custom properties. Imported
    in layout.tsx BEFORE globals.css. Do not declare a second :root
    block anywhere else in the app.
 
-   Data colors validated (dataviz six checks): cold #5B85D6 / ember #EF5411
+   Direction: restrained dark UI in the Linear/Vercel register — one
+   accent (indigo), a neutral graphite surface stack, and a single
+   "series" distinction (base = neutral steel, tuned = accent) used
+   consistently everywhere two models are compared. No warm/fire
+   palette, no gradient text.
    ============================================================ */
 :root {
-  /* surfaces (warm, coal → iron → raised steel) */
-  --coal: #0c0a09;
-  --iron: #141110;
-  --raised: #1c1815;
-  --seam: #2c251f;
-  --seam-hover: #463a2f;
+  /* surfaces (cool graphite, near-black → raised) */
+  --bg: #0a0b0d;
+  --surface: #121317;
+  --surface-raised: #1a1c21;
+  --border: #24262c;
+  --border-strong: #35383f;
 
   /* ink */
-  --ink: #f5efe9;
-  --ink-soft: #c7beb6;
-  --smoke: #95897e;
+  --ink: #f2f3f5;
+  --ink-soft: #a7acb5;
+  --muted: #7d828c; /* 5.1:1 on --bg — verified AA for the small mono labels using it */
 
-  /* heat — brand + tuned series */
-  --ember: #ef5411;
-  --ember-deep: #993000;
-  --glow: #ffa766;
-  --heat: linear-gradient(90deg, var(--ember-deep), var(--ember) 55%, var(--glow));
+  /* accent — the one color the page spends. Used for the tuned/improved
+     series and interactive affordances only, never for base decoration. */
+  --accent: #6e7bfa;
+  --accent-rgb: 110 123 250;
+  --accent-soft: #aab2ff;
 
-  /* cold — base series */
-  --cold: #5b85d6;
+  /* comparison series — base is neutral (nothing to point at), tuned
+     borrows the accent (the thing that changed). Never swap these. */
+  --series-base: #7a8087;
+  --series-base-rgb: 122 128 135;
+  --series-tuned: var(--accent);
 
   /* status — reserved, never reused for series or brand */
-  --ok: #4cc38a;
-  --bad: #f16969;
+  --ok: #3ddb8f;
+  --ok-rgb: 61 219 143;
+  --bad: #f2555a;
+  --bad-rgb: 242 85 90;
+  --warn: #e8b34c;
+  --warn-rgb: 232 179 76;
+
+  /* reward-stack intensity ramp — encodes term importance (correctness
+     dominates → full accent; scaffolding terms fade toward neutral) */
+  --tone-1: var(--accent);
+  --tone-2: #8d97fc;
+  --tone-3: #4a4fc4;
+  --tone-4: #52565f;
 
   /* motion (mirrors lib/motion.ts) */
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
   --dur-fast: 120ms;
   --dur-base: 200ms;
-  --dur-slow: 600ms;
+  --dur-slow: 500ms;
 
   /* fallbacks — next/font variables on <body> override these */
-  --font-display: "Archivo Black", "Arial Black", sans-serif;
+  --font-display: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
   --font-sans: "Inter Tight", "Inter", system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, "Fira Code", monospace;
 
@@ -58,20 +76,24 @@
   --space-11: 96px;
 
   /* ---------- fluid type scale ----------
-     Values mirror what's already rendered by h1/h2/header p/eyebrow today, so
-     later phases can build new UI on these tokens instead of new magic
-     numbers. Existing selectors keep their literal values untouched (see
-     globals.css) — wiring them to these tokens is a later-phase migration,
-     not part of this foundation pass, to guarantee zero visual change now. */
-  --text-h1: clamp(44px, 7.5vw, 96px);
-  --text-h2: clamp(26px, 3.4vw, 40px);
-  --text-h3: clamp(17px, 2vw, 20px);
-  --text-body: 17px;
-  --text-eyebrow: 12px;
+     Sane sizes, not poster scale: h1 tops out at 56px, not 96px. */
+  --text-h1: clamp(34px, 4.4vw, 56px);
+  --text-h2: clamp(24px, 2.8vw, 32px);
+  --text-h3: clamp(18px, 2vw, 21px);
+  --text-body: 16px;
+  --text-eyebrow: 11px;
 
   /* tracking (letter-spacing) tokens for the type scale above */
-  --tracking-display: -0.015em; /* h1 */
-  --tracking-heading: -0.01em; /* h2/h3 */
-  --tracking-label: 0.14em; /* eyebrow / mono labels — most-used value in the file */
-  --tracking-wide: 0.2em; /* rare, extra-loud labels (hero eyebrow) */
+  --tracking-display: -0.02em; /* h1 */
+  --tracking-heading: -0.012em; /* h2/h3 */
+  --tracking-label: 0.08em; /* eyebrow / mono labels */
+  --tracking-wide: 0.12em; /* rare, extra-loud labels */
+
+  /* ---------- radius (Linear/Vercel-grade: quiet rounding, never zero) ---------- */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+
+  /* ---------- shadow (ambient depth only — no glow theatrics) ---------- */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4), 0 2px 8px rgba(0, 0, 0, 0.24);
 }

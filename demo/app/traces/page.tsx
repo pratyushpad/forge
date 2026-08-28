@@ -7,7 +7,7 @@ import Reveal from "../_components/motion/Reveal";
 import TraceDisclosure from "../_components/TraceDisclosure";
 
 export const metadata: Metadata = {
-  title: "Traces — real reasoning, side by side",
+  title: "Traces: real reasoning, side by side",
   description:
     "Full base-vs-tuned reasoning traces on held-out GSM8K problems, including the case where both models fail.",
 };
@@ -57,7 +57,7 @@ export default function Traces() {
     <div className="wrap">
       <section className="pg-head">
         <ForgeSecLabel num="00" label="Traces · receipts" />
-        <TextIgnite as="h2" igniteWord="changed">
+        <TextIgnite as="h2">
           What actually changed in the reasoning
         </TextIgnite>
         <p className="pg-lede">
